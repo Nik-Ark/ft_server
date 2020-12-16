@@ -1,0 +1,37 @@
+open --background -a Docker
+
+FROM	debian:buster (specifies a base image from which to start the work)
+
+LABEL	maintainer="lessie@student.21school..." 
+(Command to write detailed image information such as version information, author, and comment of the image)
+(You can check the metadata of an image with the command below.) 
+		docker image inspect --format="{{ .Config.Lables }}"
+
+RUN	apt-get update && apt-get install -y \
+	nginx \
+	mariadb-server \
+	php-mysql \
+	php-mbstring \
+	openssl \
+	vim \
+	wget \
+	php7.3-fpm
+(create a new image layer, run my commands, and commit the result)
+(Always apt-get updateand apt-get install are run simultaneously on the same line)
+
+COPY	./srcs/run.sh ./
+COPY	./srcs/default ./tmp
+COPY	./srcs/wp-config.php ./tmp
+COPY	./srcs/config.inc.php ./tmp
+(Copy the host OS file or directory to the path in the container.)
+(This command will put the modified configuration files for the ft_server task in the src folder in advance.)
+
+EXPOSE	80 443
+(It tells you that the container is listening on the specified network port at runtime.)
+(Since this command itself does not execute the created port and raise it to the listening state, 
+you need to use the -p option in container run to actually open the port.)
+		[docker run -p 80:80/tcp -p 80:80/udp ...]
+
+CMD 	bash run.sh
+(Specifies the command to execute the created container.)
+(If there is more than one CMD in the Docker file, only the last CMD is valid.)
